@@ -22,6 +22,14 @@ struct appropriatecells {
 }
 
 struct appropriatecells cells[1000000][500]; //One point for each solumn and each range.
+
+struct newblocks {
+  long signature;
+  int column;
+  int elements[4];
+}
+
+struct newblocks newblocks[1000000];
 /* Reads in the text file containing the data, from here
    it will populate the array that we have designated. */
 int readingmatrix()
@@ -135,8 +143,44 @@ int FindElementsWithinDia(float[] matrix)
         float currentcell = matrix[k][currentcolumn];
         if(currentcell <= currenthigh && currentcell >= currentlow)
         {
-          cells[i][currentcolumn].cell[cellindex];
+          cells[i][currentcolumn].cell[cellindex] = k;
           cellindex++;
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+int findblocksfromelements(appropriatecells[][] cells)
+{
+  for(int i=0; i<1000000; i++)
+  {
+    for(int j=0; j<500; j++)
+    {
+      for(int k=0; k<10; k++)
+      {
+        int firstelement = cells[i][j].cell[k];
+        for(int l=0; l<10; l++)
+        {
+          if(l == k) continue;
+          int secondelement = cells[i][j].cell[l];
+          for(int m=0; m<10;m++)
+          {
+            if(m ==l || m == k) continue;
+            int thirdelement = cells[i][j];
+            for(int n=0;n<10; n++)
+            {
+              if(n == m || n == l || n == k) continue;
+              int fourthelement = cells[i][j].cell[n];
+              newblocks[i].column = j;
+              newblocks[i].signature = keymatrix[firstelement] + keymatrix[secondelement] + keymatrix[thirdelement] + keymatrix[fourthelement];
+              newblocks[i].elements[0] = firstelement;
+              newblocks[i].elements[1] = secondelement;
+              newblocks[i].elements[2] = thirdelement;
+              newblocks[i].elements[3] = fourthelement;
+            }
+          }
         }
       }
     }
