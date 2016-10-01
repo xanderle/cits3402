@@ -15,6 +15,13 @@ struct block {
 
 struct block blocks[10000]; //The structure in which all block data will be stored
 
+struct appropriatecells {
+  float lowerbound;
+  float upperbound;
+  int cell[1000];
+}
+
+struct appropriatecells cells[1000000][500]; //One point for each solumn and each range.
 /* Reads in the text file containing the data, from here
    it will populate the array that we have designated. */
 int readingmatrix()
@@ -81,28 +88,55 @@ int readingkeys()
    return 0;
 }
 
-int generateblocks(float[] matric, long[] keymatrix)
+/*This method will be used in order to calculate the blocks for
+  the various dia */
+  // THIS WAS THE OLD ONE, PROBS NOT THAT GREAT
+int generateblocks(float[] matrix, long[] keymatrix){
+  for(int i=0;i<500;i++){//Does each column one at a time
+    int currentcolumn = i;
+    for(int j=0;j<4400;j++){//Chooses the first element
+      float FirstElement = matrix[j][currentcolumn];
+      for(int k=0;k<4400;k++){//Chooses the second element
+        if(j==k) continue;
+        float SecondElement = matrix[k][currentcolumn];
+        if(SecondElement >= FirstElement && SecondElement <= FirstElement + dia){
+          SecondElement = matrix[k][currentcolumn];
+        }else if(SecondElement <= FirstElement && SecondElement >= FirstElement - dia){
+          SecondElement = matrix[k][currentcolumn];
+        } else continue;
+        for(int l=0;l<4400;l++){//Chooses the third element
+          float ThirdElemnt = matrix[l][currentcolumn];
+          for(int m=0;m<4400;m++){//Chooses the final element
+            float LastElement = matrix[m][currentcolumn];
+          }
+        }
+      }
+    }
+  }
+}
+
+/* This method will allow us to find the given elements within the specified dia,
+  from here we will call another method in order to calculate the blocks */
+  //I KNOW THIS WILL TAKE AGES TO RUN THE FIRST TIME, I DONT CARE
+int FindElementsWithinDia(float[] matrix)
 {
-  for(int i=0;i<500;i++) //Does each column one at a time
+  for(int i=0; i < 1000000; i++)//Cover all dia distances
   {
-    for(int j=0;j<4400;j++) //Does each cell in each row beginning at the start
+    float currentlow = i*dia;
+    float currenthigh = (i+1)*dia;
+    for(int j=0; j<500; j++)//Iterate over each column
     {
-      float currentcell = matrix[j][i]; //Stores the current number to look at
-      for(int k=0;k<4400;k++) //Iterates over the remaining cells in the rows
+      int currentcolumn = j;
+      int cellindex = 0;
+      cells[i][currentcolumn].lowerbound = currentlow;
+      cells[i][currentcolumn].upperbound = currenthigh;
+      for(int k=0; k<4400; k++)
       {
-        if(k == j)
+        float currentcell = matrix[k][currentcolumn];
+        if(currentcell <= currenthigh && currentcell >= currentlow)
         {
-          continue;
-        }
-        if(matrix[k][i] >= (currentcell - dia) && matrix[k][i] <= currentcell)
-        {
-          blocks[j].signature += keymatrix[k];
-          //TODO: Find a way to add the cell numbers along with the block
-        }
-        else if(matrix[k][i] <= (currentcell + dia) && matrix[k][i] >= currentcell)
-        {
-          blocks[j].signature += keymatrix[k];
-          //TODO: Find a way to add the cell numbers with the blocks
+          cells[i][currentcolumn].cell[cellindex];
+          cellindex++;
         }
       }
     }
