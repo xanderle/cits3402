@@ -30,6 +30,14 @@ struct newblocks {
 }
 
 struct newblocks newblocks[1000000];
+
+struct collision {
+  long signature;
+  int collisionblocks[10]; //Can then just reference everything when printing the results
+}
+
+struct collision col[1000000];
+
 /* Reads in the text file containing the data, from here
    it will populate the array that we have designated. */
 int readingmatrix()
@@ -181,6 +189,24 @@ int findblocksfromelements(appropriatecells[][] cells)
               newblocks[i].elements[3] = fourthelement;
             }
           }
+        }
+      }
+    }
+  }
+}
+
+int findcollisions(newblocks[] newblocks)
+{
+  for(int i=0; i<1000000;i++)
+  {
+    for(int j=0; j<10000;j++)
+    {
+      if(newblocks[i].signature == newblocks[j].signature)
+      {
+        collision[i].signature = newblocks[i].signature;
+        for(int k=0; k<4; kk++)
+        {
+          collision[i].collisionblocks[k] = newblocks.elements[k];
         }
       }
     }
