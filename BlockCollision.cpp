@@ -3,11 +3,10 @@
 #include <string.h>
 #include <math.h>
 
-float matrix[4400][500]; //The matrix that will store all the initiail data
-long keymatrix[4400]; //The matrix that will store all the key data
-
 float dia = 1*10^-6; //The dia (distance) between compatiible cells
 int elements[1000];
+long keyArray[4400] = {0};//The matrix that will store all the key data
+float matrix[4400][500] = {0}; //The matrix that will store all the initiail data
 struct blocks{
   long signature;
   int elements[];
@@ -15,7 +14,7 @@ struct blocks{
 
 /* Reads in the text file containing the data, from here
    it will populate the array that we have designated. */
-int readingMatrix()
+int readingMatrix(float matrix[][500])
 {
   FILE * fp;
   char * line = NULL;
@@ -36,7 +35,7 @@ int readingMatrix()
     while (token != NULL)
     {
       matrix[i][j] = atof(token);
-      //printf("%f \n", matrix[i][j]);
+      printf("%f \n", matrix[i][j]);
       //printf("%d,%d\n",i,j);
       token = strtok(NULL, s);
       j++;
@@ -44,6 +43,7 @@ int readingMatrix()
     i++;
   }
   fclose(fp);
+  printf("Done");
   if(line) free(line);
   return 0;
 }
@@ -69,12 +69,13 @@ int readingkeys()
      token = strtok(line, s);
      while(token != NULL)
      {
-       keymatrix[i] = atol(token);
+       keyArray[i] = atol(token);
+       printf("token %ld\n",keyArray[i]);
        token = strtok(NULL, s);
        i++;
      }
    }
-   printf("Done\n");
+   printf("Finished Reading Keys\n");
    fclose(fp);
    if(line) free(line);
    return 0;
@@ -85,9 +86,9 @@ int generateBlocks(){
   for(int i =0; i<500;i++){
     for(int j =0; j < 1000000;j++){
       for(int z =0;z<44000;z++){
-        printf("hi");
-        float lowerbound = i*dia;
-        float upperbound = (i+1)*dia;
+        float lowerbound = z*dia;
+        float upperbound  = (z+1)*dia;
+        printf("lower bound is %.6f upperbound is %.6f\n",lowerbound,upperbound);
         if(lowerbound < matrix[i][j] && upperbound > matrix[i][j]){
           elements[index]= z;
           index++;
@@ -105,10 +106,10 @@ int generateBlocks(){
             long second = elements[l];
             long third = elements[m];
             long fourth = elements[n];
-            printf("First element %l",first);
-            printf(" Second element %l",second);
-            printf(" Third element %l",third);
-            printf(" Fourth element %l \n",fourth);
+            printf("First element %ld",first);
+            printf(" Second element %ld",second);
+            printf(" Third element %ld",third);
+            printf(" Fourth element %ld \n",fourth);
 
           }
         }
@@ -120,8 +121,11 @@ int generateBlocks(){
 
 int main()
 {
+
+  printf("Starting\n");
   readingkeys();
-  readingMatrix();
+  printf("keys %ld", keyArray[0]);
+  readingMatrix(matrix);
   generateBlocks();
   return 1;
 }
