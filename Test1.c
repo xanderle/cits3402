@@ -72,7 +72,7 @@ int readingkeys()
       i++;
     }
   }
-
+  printf("done\n");
   fclose(fp);
   if(line) free(line);
   return 0;
