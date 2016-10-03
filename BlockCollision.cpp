@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 
-float dia = 1*10^-6; //The dia (distance) between compatiible cells
+float dia = 0.000001; //The dia (distance) between compatiible cells
 int elements[1000];
 long keyArray[4400] = {0};//The matrix that will store all the key data
 float matrix[4400][500] = {0}; //The matrix that will store all the initiail data
@@ -85,11 +85,11 @@ int generateBlocks(){
   int index = 0;
   for(int i =0; i<500;i++){
     for(int j =0; j < 1000000;j++){
-      for(int z =0;z<44000;z++){
+      for(int z =0;z<4400;z++){
         float lowerbound = z*dia;
         float upperbound  = (z+1)*dia;
         printf("lower bound is %.6f upperbound is %.6f\n",lowerbound,upperbound);
-        if(lowerbound < matrix[i][j] && upperbound > matrix[i][j]){
+        if(lowerbound <= matrix[i][j] && upperbound >= matrix[i][j]){
           elements[index]= z;
           index++;
         }
@@ -116,6 +116,7 @@ int generateBlocks(){
       }
     }
   }
+  return 0;
 }
 
 
