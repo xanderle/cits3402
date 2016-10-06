@@ -10,22 +10,25 @@ struct elements{
   float cellElement;
 };
 
-
 struct collisions{
   long signature;
-  elements blocks[10];
+  int blocks[100];
+  int column;
 };
+
 struct Blocks{
   long signature;
   int Elements[4];
   int column;
 };
 
-Blocks block[40000];
+collisions colli[100000];
+Blocks block[123235];
 elements potentialBlocks[100];
-elements elementMatrix[4400][500];
-elements flippedMatrix[500][4400];
+elements elementMatrix[4400][499];
+elements flippedMatrix[499][4400];
 long keyArray[4400] = {0};//The matrix that will store all the key data
+int blockIndex = 0;
 
 /* Reads in the text file containing the data, from here
    it will populate the array that we have designated. */
@@ -41,25 +44,24 @@ int readingMatrix()
   fp = fopen("data.txt", "r");
   if(fp == NULL) exit(EXIT_FAILURE);
 
-  while ((read = getline(&line, &len, fp)) != -1 )
+  while ((read = getline(&line, &len, fp)) != -1)
   {
     const char s[2] = ",";
     char *token;
     token = strtok(line, s);
     j = 0;
 
-    while (token != NULL)
+    while (token != NULL && j != 499)
     {
+      if(j == 499) continue;
       elementMatrix[i][j].index = i;
       elementMatrix[i][j].cellElement = atof(token);
-      //printf("%f \n", elementMatrix[i][j].cellElement);
       token = strtok(NULL, s);
       j++;
     }
     i++;
   }
   fclose(fp);
-  //printf("i is %d j is %d\n",i,j);
   if(line) free(line);
   return 0;
 }
@@ -86,12 +88,10 @@ int readingkeys()
      while(token != NULL)
      {
        keyArray[i] = atol(token);
-       //printf("token %ld\n",keyArray[i]);
        token = strtok(NULL, s);
        i++;
      }
    }
-   printf("Finished Reading Keys\n");
    fclose(fp);
    if(line) free(line);
    return 0;
@@ -166,6 +166,7 @@ void mergeSort(elements arr[], int l, int r)
         merge(arr, l, m, r);
     }
 }
+
 void printArray(elements A[], int size)
 {
     int i;
@@ -175,20 +176,21 @@ void printArray(elements A[], int size)
 }
 
 void sortColums(){
-  for(int i = 0; i < 500;i++){
+  for(int i = 0; i < 499;i++){
       mergeSort(flippedMatrix[i],0,4400);
   }
 }
 
 void flipMatrix(){
   for(int i = 0;i<4400;i++){
-    for(int j =0; j<500;j++){
+    for(int j =0; j<499;j++){
       flippedMatrix[j][i] = elementMatrix[i][j];
     }
   }
 }
+
 void flipBack(){
-  for(int i =0 ;i<500;i++){
+  for(int i =0 ;i<499;i++){
     for(int j = 0;j<4400;j++){
       elementMatrix[j][i] = flippedMatrix[i][j];
     }
@@ -198,22 +200,171 @@ void flipBack(){
 
 void printMatrix(){
   for(int i =0; i < 4400;i++){
-    for(int j = 0;j< 500;j++){
+    for(int j = 0;j< 499;j++){
       printf("%f",elementMatrix[i][j].cellElement);
     }
     printf("\n");
   }
 }
+
+void printthematrix(){
+  for(int i = 0; i < 4400; i++){
+    printf("%f\n", elementMatrix[i][0].cellElement);
+  }
+}
+
+void blockCreation(){
+  for(int i =0; i<499; i++){
+    for(int j =0;j<4400;j++){
+      int k = 0;
+      elements currElement = elementMatrix[j][i];
+      int index = j + 1;
+      elements potentialBlocks[4400];
+      potentialBlocks[k] = currElement;
+      k++;
+      while((std::abs(currElement.cellElement - elementMatrix[index][i].cellElement) <= dia)){
+        potentialBlocks[k] = elementMatrix[index][i];
+        index++;
+        k++;
+      }
+      if(k > 3){
+        for(int a =0;a<=k;a++){
+          for(int b = 0;b<=k;b++){
+            if(a == b || b < a) continue;
+            for(int c =0;c<=k;c++){
+              if(c == b || c == a || c < b) continue;
+              for(int d= 0;d<=k;d++){
+                if(d == a || d == b || d == c || d < c) continue;
+                block[blockIndex].column = i;
+                block[blockIndex].signature = keyArray[potentialBlocks[a].index]+keyArray[potentialBlocks[b].index]+keyArray[potentialBlocks[c].index]+keyArray[potentialBlocks[d].index];
+                block[blockIndex].Elements[0] = potentialBlocks[a].index;
+                block[blockIndex].Elements[1] = potentialBlocks[b].index;
+                block[blockIndex].Elements[2] = potentialBlocks[c].index;
+                block[blockIndex].Elements[3] = potentialBlocks[d].index;
+
+                blockIndex++;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+void mergeBlock(Blocks arr[], int l, int m, int r)
+{
+    int i, j, k;
+    int n1 = m - l + 1;
+    int n2 =  r - m;
+
+    /* create temp arrays */
+    Blocks L[n1], R[n2];
+
+    /* Copy data to temp arrays L[] and R[] */
+    for (i = 0; i < n1; i++)
+        L[i] = arr[l + i];
+    for (j = 0; j < n2; j++)
+        R[j] = arr[m + 1+ j];
+
+    /* Merge the temp arrays back into arr[l..r]*/
+    i = 0; // Initial index of first subarray
+    j = 0; // Initial index of second subarray
+    k = l; // Initial index of merged subarray
+    while (i < n1 && j < n2)
+    {
+        if (L[i].signature <= R[j].signature)
+        {
+            arr[k] = L[i];
+            i++;
+        }
+        else
+        {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    /* Copy the remaining elements of L[], if there
+       are any */
+    while (i < n1)
+    {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    /* Copy the remaining elements of R[], if there
+       are any */
+    while (j < n2)
+    {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+void mergeSortBlock(Blocks arr[], int l, int r)
+{
+    if (l < r)
+    {
+        // Same as (l+r)/2, but avoids overflow for
+        // large l and h
+        int m = l+(r-l)/2;
+
+        // Sort first and second halves
+        mergeSortBlock(arr, l, m);
+        mergeSortBlock(arr, m+1, r);
+        mergeBlock(arr, l, m, r);
+    }
+}
+
+void sortBlocks()
+{
+    mergeSortBlock(block, 0, 123235);
+}
+
+void collisionDetection(){
+  int indexOfCollision =0;
+  int collisionIndex = 0;
+  for(int i = 0; i<blockIndex;i++){
+    if(block[i].signature == block[i+1].signature){
+      colli[collisionIndex].signature = block[i].signature;
+      colli[collisionIndex].blocks[indexOfCollision] = i;
+      indexOfCollision++;
+      colli[collisionIndex].column = block[i].column;
+      printf("Signature is %ld\n",block[i].signature);
+      collisionIndex++;
+
+    }
+  else{
+    indexOfCollision = 0;
+    }
+  }
+}
+
+
 int main()
 {
-
-  printf("Starting\n");
+  printf("Starting...\n");
+  printf("Reading Keys...\n");
   readingkeys();
+  printf("Keys Read!\nReading Data...\n");
   readingMatrix();
+  printf("Data Read!\n");
   flipMatrix();
+  printf("Sorting Data...\n");
   sortColums();
-  printArray(flippedMatrix[0],4400);
-  //blockCreation();
+  printf("Data Sorted!\nGenerating Blocks...\n");
+  flipBack();
+  blockCreation();
+  printf("Blocks Generated!\nNow Sorting...\n");
+  sortBlocks();
+  collisionDetection();
+  printf("Collisions Detected!\n");
 
   return 1;
 }
